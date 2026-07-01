@@ -1,0 +1,30 @@
+spring:
+  profiles:
+    active: h2
+  ldap:
+    urls: ${LDAP_URL:ldaps://dc.elis.org:3269}
+    base: ${LDAP_BASE:dc=elis,dc=org}
+
+app:
+  ldap:
+    manager-dn: ${LDAP_MANAGER_DN:cn=ingegneria-helper,ou=Supporto}
+    manager-password: ${LDAP_MANAGER_PASSWORD:XM7.8cs.3VY+h&Yi}
+    user-search-filter: ${LDAP_USER_SEARCH_FILTER:(sAMAccountName={0})}
+    form-login-enabled: ${LDAP_FORM_LOGIN_ENABLED:true}
+
+server:
+  servlet:
+    session:
+      timeout: 8h
+
+# JWT (infrastruttura preesistente TokenGranterService) - default di sviluppo,
+# sovrascrivere in produzione tramite variabili d'ambiente.
+custom:
+  secret:
+    key: ${JWT_SECRET_KEY:dev-secret-key-change-me-please-min-32-bytes-long-0123456789}
+jwt-token:
+  expirationTime: ${JWT_EXPIRATION_MS:28800000}
+
+logging:
+  level:
+    dev.antoniogrillo.testldap.security: INFO

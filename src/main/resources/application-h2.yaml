@@ -1,0 +1,18 @@
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /all/consoleh2
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create-drop
+
+  datasource:
+    driver-class-name: org.h2.Driver
+    username: root
+    url: jdbc:h2:mem:app_ingegneria_digitale
+    password: toor
+
