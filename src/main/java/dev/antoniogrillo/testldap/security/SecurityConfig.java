@@ -2,21 +2,19 @@ package dev.antoniogrillo.testldap.security;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
@@ -93,7 +91,7 @@ public class SecurityConfig {
                     + "connect-src 'self'; "
                     + "frame-ancestors 'self'; "
                     + "base-uri 'self'"))
-                .frameOptions(frame -> frame.sameOrigin())
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
                 .httpStrictTransportSecurity(hsts -> hsts
                     .includeSubDomains(true).maxAgeInSeconds(31536000))
                 .referrerPolicy(rp -> rp.policy(
@@ -193,33 +191,14 @@ public class SecurityConfig {
 
     /** Loga ogni fase del bind LDAP: search -> bind -> errore. Utile in diagnostica prod. */
     private static class DiagnosticBindAuthenticator extends BindAuthenticator {
-        private static final Logger diagLog =
-            LoggerFactory.getLogger(DiagnosticBindAuthenticator.class);
-
         DiagnosticBindAuthenticator(DefaultSpringSecurityContextSource cs) {
             super(cs);
         }
 
         @Override
-        public DirContextOperations authenticate(Authentication authentication) {
-            String username = authentication.getName();
-            diagLog.debug("LDAP [1/3] SEARCH START - username='{}'", username);
-            try {
-                DirContextOperations result = super.authenticate(authentication);
-                diagLog.debug("LDAP [3/3] BIND OK - username='{}' resolvedDN='{}'",
-                    username, result.getDn());
-                return result;
-            } catch (UsernameNotFoundException e) {
-                diagLog.warn("LDAP [2/3] SEARCH FAILED - username='{}': {}", username, e.getMessage());
-                throw e;
-            } catch (BadCredentialsException e) {
-                diagLog.warn("LDAP [2/3] BIND FAILED - username='{}': {}", username, e.getMessage());
-                throw e;
-            } catch (Exception e) {
-                diagLog.error("LDAP [2/3] ERROR - username='{}' type='{}': {}",
-                    username, e.getClass().getSimpleName(), e.getMessage(), e);
-                throw e;
-            }
+        @NonNull
+        public DirContextOperations authenticate(@NonNull Authentication authentication) {
+            return super.authenticate(authentication);
         }
     }
 }

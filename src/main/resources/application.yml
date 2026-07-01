@@ -1,13 +1,14 @@
 spring:
   profiles:
     active: h2
+
   ldap:
     urls: ${LDAP_URL:ldaps://dc.elis.org:3269}
     base: ${LDAP_BASE:dc=elis,dc=org}
 
 app:
   ldap:
-    manager-dn: ${LDAP_MANAGER_DN:cn={0},cn=Users}
+    manager-dn: ${LDAP_MANAGER_DN:cn=ingegneria-helper,ou=Supporto,dc=elis,dc=org}
     manager-password: ${LDAP_MANAGER_PASSWORD:XM7.8cs.3VY+h&Yi}
     user-search-filter: ${LDAP_USER_SEARCH_FILTER:(sAMAccountName={0})}
     form-login-enabled: ${LDAP_FORM_LOGIN_ENABLED:true}
